@@ -15,7 +15,7 @@ USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 F
 cd "$DOWNLOAD_PATH" || { echo "Error - Can't find directory $DOWNLOAD_PATH, please make sure that it is correct"; exit 0; }
 
 # Download the XML file
-curl -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
+curl -L -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
 
 # Use xmllint to parse the XML and extract the URLs and titles
 # Loop over each item, extract the enclosure url and title
@@ -28,9 +28,15 @@ do
     # Sanitize the title to use it as a filename (replace spaces with underscores and remove special chars)
     safe_title=$(echo "$title" | tr -s ' ' '_' | tr -cd '[:alnum:]_-')
 
-    # Download the video using wget and save it with the sanitized title
-    echo "Downloading: $title"
-    curl -L -o "${safe_title}.mp4" -A "$USER_AGENT" "$url"
+    # Check if file already exists, if so skip download
+    if [ -f "${safe_title}.mp4" ]; then
+        echo "File already exists: ${safe_title}.mp4, skipping download."
+    else
+        # Download the video using wget and save it with the sanitized title
+        echo "Downloading: $title"
+        curl -L -o "${safe_title}.mp4" -A "$USER_AGENT" "$url"
+    fi
+
 done
 
 rm "$TMP_XML"
