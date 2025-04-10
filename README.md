@@ -1,5 +1,6 @@
-# kinopub-donwloader
-This is simple shell Kinupub Downloader via Podcasts.
+# kinopub-downloader
+
+This is simple shell Kinopub Downloader via Podcasts.
 
 ## Dependencies
 
