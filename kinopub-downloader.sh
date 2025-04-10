@@ -19,7 +19,7 @@ curl -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
 
 # Use xmllint to parse the XML and extract the URLs and titles
 # Loop over each item, extract the enclosure url and title
-xmlstarlet sel -t -m "//item" -v "concat(title, '|', enclosure/@url)" -n $TMP_XML | while IFS= read -r line
+xmlstarlet sel -t -m "//item" -v "concat(title, '|', enclosure/@url)" -n $TMP_XML | sort | while IFS= read -r line
 do
     # Split the title and URL
     title=$(echo "$line" | awk -F'|' '{print $1}')
