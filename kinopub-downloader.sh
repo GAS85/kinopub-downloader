@@ -6,6 +6,9 @@ XML_URL="https://kino.pub/podcast/get/82..."
 # Path files to be downloaded, e.g. /home/user/podcasts/
 DOWNLOAD_PATH="/home/user/podcasts/"  # Make sure to set the appropriate path
 
+# You can set proxy here, please refer to CURL supported proxy
+PROXY=""
+
 # Set Temp File location
 TMP_XML=/tmp/podcast.xml
 
@@ -14,8 +17,14 @@ USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 F
 
 cd "$DOWNLOAD_PATH" || { echo "Error - Can't find directory $DOWNLOAD_PATH, please make sure that it is correct"; exit 0; }
 
+if [ -n "$PROXY" ]; then
+    CURL_USE_PROXY="-x $PROXY"
+else
+    CURL_USE_PROXY=""
+fi
+
 # Download the XML file
-curl -L -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
+curl "$CURL_USE_PROXY" -L -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
 
 # Use xmllint to parse the XML and extract the URLs and titles
 # Loop over each item, extract the enclosure url and title
@@ -34,9 +43,8 @@ do
     else
         # Download the video using wget and save it with the sanitized title
         echo "Downloading: $title"
-        curl -L -o "${safe_title}.mp4" -A "$USER_AGENT" "$url"
+        curl "$CURL_USE_PROXY" -L -o "${safe_title}.mp4" -A "$USER_AGENT" "$url"
     fi
-
 done
 
 rm "$TMP_XML"
