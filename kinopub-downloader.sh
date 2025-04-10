@@ -6,6 +6,12 @@ XML_URL="https://kino.pub/podcast/get/82..."
 # Path files to be downloaded, e.g. /home/user/podcasts/
 DOWNLOAD_PATH="/home/user/podcasts/"  # Make sure to set the appropriate path
 
+# You can set Serie number to start from, e.g. s1e3 will download s1e3 and everything after.
+START_FROM=""
+
+# You can set number of files to be download, e.g. 3
+STOP_AFTER=""
+
 # You can set proxy here, please refer to CURL supported proxy
 PROXY=""
 
@@ -26,9 +32,11 @@ fi
 # Download the XML file
 curl "$CURL_USE_PROXY" -L -A "$USER_AGENT" -s "$XML_URL" -o "$TMP_XML"
 
+COUNTER=0
+
 # Use xmllint to parse the XML and extract the URLs and titles
 # Loop over each item, extract the enclosure url and title
-xmlstarlet sel -t -m "//item" -v "concat(title, '|', enclosure/@url)" -n $TMP_XML | sort | while IFS= read -r line
+xmlstarlet sel -t -m "//item" -v "concat(title, '|', enclosure/@url)" -n $TMP_XML | sort | awk "/$START_FROM/ {found=1} found" | while IFS= read -r line
 do
     # Split the title and URL
     title=$(echo "$line" | awk -F'|' '{print $1}')
@@ -44,6 +52,13 @@ do
         # Download the video using wget and save it with the sanitized title
         echo "Downloading: $title"
         curl "$CURL_USE_PROXY" -L -o "${safe_title}.mp4" -A "$USER_AGENT" "$url"
+
+        if [ -n "$STOP_AFTER" ]; then
+            ((COUNTER++));
+            if [ "$STOP_AFTER" == "$COUNTER"  ] ; then
+                break
+            fi
+        fi
     fi
 done
 
