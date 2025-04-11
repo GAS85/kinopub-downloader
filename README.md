@@ -27,4 +27,6 @@ Run it:
 
 ```bash
 ./kinopub_downloader.sh
+# Or
+./kinopub_downloader.sh s01e03 # to start downloading from Season 1 Episod 3
 ```
